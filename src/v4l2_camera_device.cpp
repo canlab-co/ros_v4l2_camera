@@ -189,9 +189,11 @@ std::string V4l2CameraDevice::getCameraName()
 }
 
 Image::UniquePtr V4l2CameraDevice::capture()
-{
+{	 
   auto buf = v4l2_buffer{};
-
+  
+  rclcpp::Time buf_stamp;
+  
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
 
@@ -203,7 +205,9 @@ Image::UniquePtr V4l2CameraDevice::capture()
       std::to_string(errno).c_str());
     return nullptr;
   }
-
+  
+  buf_stamp = rclcpp::Clock{RCL_SYSTEM_TIME}.now();
+  
   // Requeue buffer to be reused for new captures
   if (-1 == ioctl(fd_, VIDIOC_QBUF, &buf)) {
     RCLCPP_ERROR(
@@ -215,6 +219,7 @@ Image::UniquePtr V4l2CameraDevice::capture()
 
   // Create image object
   auto img = std::make_unique<Image>();
+  img->header.stamp = buf_stamp;
   img->width = cur_data_format_.width;
   img->height = cur_data_format_.height;
   img->step = cur_data_format_.bytesPerLine;
@@ -234,7 +239,7 @@ Image::UniquePtr V4l2CameraDevice::capture()
   auto const & buffer = buffers_[buf.index];
   
   img->data.assign(buffer.start, buffer.start + cur_data_format_.imageByteSize);
-    
+        
   return img;
 }
 

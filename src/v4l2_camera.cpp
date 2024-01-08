@@ -44,24 +44,12 @@ V4L2Camera::V4L2Camera(rclcpp::NodeOptions const & options)
   device_descriptor.description = "Path to video device";
   device_descriptor.read_only = true;
   auto device = declare_parameter<std::string>("video_device", "/dev/video0", device_descriptor);
+  
   camera_ = std::make_shared<V4l2CameraDevice>(device);
 
   if (!camera_->open()) {
     return;
   }
-
-  std::istringstream ss(device);
-  std::string buffer;
-  std::vector<std::string> parse_list;
-
-  while(std::getline(ss, buffer, '/'))
-  {
-    parse_list.push_back(buffer);
-  }
-
-  auto topic_subname = parse_list[2];
-
-  
   
   // Prepare publisher
   // This should happen before registering on_set_parameters_callback,
@@ -90,15 +78,14 @@ V4L2Camera::V4L2Camera(rclcpp::NodeOptions const & options)
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
           continue;
         }
-
-        auto stamp = now();
+		  
         if (img->encoding != output_encoding_) {
           img = convert(*img);
         }
-        img->header.stamp = stamp;
+        
         img->header.frame_id = camera_frame_id_;
 
-	image_pub_->publish(*img);
+	 image_pub_->publish(*img);
       }
     }
   };
