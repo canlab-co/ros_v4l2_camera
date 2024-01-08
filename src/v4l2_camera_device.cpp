@@ -230,10 +230,11 @@ Image::UniquePtr V4l2CameraDevice::capture()
       cur_data_format_.pixelFormat);
   }
 
-  img->data.resize(cur_data_format_.imageByteSize);
-
+  // Copy over buffer data
   auto const & buffer = buffers_[buf.index];
-  std::copy(buffer.start, buffer.start + img->data.size(), img->data.begin());
+  
+  img->data.assign(buffer.start, buffer.start + cur_data_format_.imageByteSize);
+    
   return img;
 }
 
