@@ -22,6 +22,7 @@
 #include <utility>
 #include <tuple>
 #include <vector>
+#include <unordered_map>
 
 #include "v4l2_camera/control.hpp"
 #include "v4l2_camera/image_format.hpp"
@@ -105,6 +106,8 @@ private:
   PixelFormat cur_data_format_;
 
   std::vector<Buffer> buffers_;
+  
+  static std::unordered_map<std::uint32_t, std::string> const pixel_format_map_;
 
   void getCaptureParameters();
 
