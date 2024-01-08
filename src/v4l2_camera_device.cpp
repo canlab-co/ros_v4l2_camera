@@ -91,11 +91,8 @@ bool V4l2CameraDevice::open()
     std::to_string(cur_data_format_.height).c_str());
 
   // List all available image formats, sizes, intervals, controls and capture parameters
-  getCaptureParameters();
   listImageFormats();
   listImageSizes();
-  listFrameIntervals();
-  listControls();
 
   // Log results
   RCLCPP_INFO(rclcpp::get_logger("v4l2_camera"), "Available pixel formats: ");
@@ -104,39 +101,7 @@ bool V4l2CameraDevice::open()
       rclcpp::get_logger("v4l2_camera"),
       "  %s - %s", FourCC::toString(format.pixelFormat).c_str(), format.description.c_str());
   }
-
-  RCLCPP_INFO(rclcpp::get_logger("v4l2_camera"), "Available controls: ");
-  for (auto const & control : controls_) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("v4l2_camera"),
-      "  %s (%s) = %s", control.name.c_str(),
-      std::to_string(static_cast<unsigned>(control.type)).c_str(),
-      std::to_string(getControlValue(control.id)).c_str());
-  }
-
-  if (timePerFrameSupported()) {
-    RCLCPP_INFO(rclcpp::get_logger("v4l2_camera"), "Time-per-frame support: YES");
-    RCLCPP_INFO(
-      rclcpp::get_logger("v4l2_camera"),
-      "  Current time per frame: %d/%d s",
-      capture_parm_.timeperframe.numerator,
-      capture_parm_.timeperframe.denominator);
-
-    RCLCPP_INFO(rclcpp::get_logger("v4l2_camera"), "  Available intervals:");
-    for (auto const & kv : frame_intervals_) {
-      auto oss = std::ostringstream{};
-      oss << FourCC::toString(std::get<0>(kv.first)) << " " << std::get<1>(kv.first) << "x" <<
-        std::get<2>(kv.first) << ":";
-      for (auto const & i : kv.second) {
-        oss << " " << i.first << "/" << i.second;
-      }
-      RCLCPP_INFO(rclcpp::get_logger("v4l2_camera"), "    %s", oss.str().c_str());
-    }
-  } else {
-    RCLCPP_INFO(
-      rclcpp::get_logger("v4l2_camera"), "Time-per-frame support: NO");
-  }
-
+  
   return true;
 }
 
@@ -244,7 +209,9 @@ Image::UniquePtr V4l2CameraDevice::capture()
   img->height = cur_data_format_.height;
   img->step = cur_data_format_.bytesPerLine;
   if (cur_data_format_.pixelFormat == V4L2_PIX_FMT_YUYV) {
-    img->encoding = sensor_msgs::image_encodings::YUV422;
+    img->encoding = sensor_msgs::image_encodings::YUV422_YUY2;
+  } else if (cur_data_format_.pixelFormat == V4L2_PIX_FMT_UYVY){
+      img->encoding = sensor_msgs::image_encodings::YUV422;
   } else if (cur_data_format_.pixelFormat == V4L2_PIX_FMT_GREY) {
     img->encoding = sensor_msgs::image_encodings::MONO8;
   } else {
@@ -255,38 +222,6 @@ Image::UniquePtr V4l2CameraDevice::capture()
   auto const & buffer = buffers_[buf.index];
   std::copy(buffer.start, buffer.start + img->data.size(), img->data.begin());
   return img;
-}
-
-int32_t V4l2CameraDevice::getControlValue(uint32_t id)
-{
-  auto ctrl = v4l2_control{};
-  ctrl.id = id;
-  if (-1 == ioctl(fd_, VIDIOC_G_CTRL, &ctrl)) {
-    RCLCPP_ERROR(
-      rclcpp::get_logger("v4l2_camera"),
-      "Failed getting value for control %s: %s (%s); returning 0!", std::to_string(id).c_str(),
-      strerror(errno), std::to_string(errno).c_str());
-    return 0;
-  }
-  return ctrl.value;
-}
-
-bool V4l2CameraDevice::setControlValue(uint32_t id, int32_t value)
-{
-  auto ctrl = v4l2_control{};
-  ctrl.id = id;
-  ctrl.value = value;
-  if (-1 == ioctl(fd_, VIDIOC_S_CTRL, &ctrl)) {
-    auto control = std::find_if(
-      controls_.begin(), controls_.end(),
-      [id](Control const & c) {return c.id == id;});
-    RCLCPP_ERROR(
-      rclcpp::get_logger("v4l2_camera"),
-      "Failed setting value for control %s to %s: %s (%s)", control->name.c_str(),
-      std::to_string(value).c_str(), strerror(errno), std::to_string(errno).c_str());
-    return false;
-  }
-  return true;
 }
 
 bool V4l2CameraDevice::requestDataFormat(const PixelFormat & format)
@@ -355,21 +290,6 @@ bool V4l2CameraDevice::requestTimePerFrame(std::pair<uint32_t, uint32_t> tpf)
   return true;
 }
 
-void V4l2CameraDevice::getCaptureParameters()
-{
-  struct v4l2_streamparm streamParm;
-  streamParm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if (-1 == ioctl(fd_, VIDIOC_G_PARM, &streamParm)) {
-    RCLCPP_ERROR(
-      rclcpp::get_logger("v4l2_camera"),
-      "Failed requesting streaming parameters: %s (%s)", strerror(errno),
-      std::to_string(errno).c_str());
-    return;
-  }
-
-  capture_parm_ = streamParm.parm.capture;
-}
-
 void V4l2CameraDevice::listImageFormats()
 {
   image_formats_.clear();
@@ -398,162 +318,6 @@ void V4l2CameraDevice::listImageSizes()
         "Failed listing frame size " << strerror(errno) << " (" << errno << ")");
       continue;
     }
-
-    switch (frmSizeEnum.type) {
-      case V4L2_FRMSIZE_TYPE_DISCRETE:
-        image_sizes_[f.pixelFormat] = listDiscreteImageSizes(frmSizeEnum);
-        break;
-      case V4L2_FRMSIZE_TYPE_STEPWISE:
-        image_sizes_[f.pixelFormat] = listStepwiseImageSizes(frmSizeEnum);
-        break;
-      case V4L2_FRMSIZE_TYPE_CONTINUOUS:
-        image_sizes_[f.pixelFormat] = listContinuousImageSizes(frmSizeEnum);
-        break;
-      default:
-        RCLCPP_WARN_STREAM(
-          rclcpp::get_logger("v4l2_camera"),
-          "Frame size type not supported: " << frmSizeEnum.type);
-        continue;
-    }
-  }
-}
-
-V4l2CameraDevice::ImageSizesDescription V4l2CameraDevice::listDiscreteImageSizes(
-  v4l2_frmsizeenum frm_size_enum)
-{
-  auto sizes = ImageSizesVector{};
-
-  do {
-    sizes.emplace_back(std::make_pair(frm_size_enum.discrete.width, frm_size_enum.discrete.height));
-    frm_size_enum.index++;
-  } while (ioctl(fd_, VIDIOC_ENUM_FRAMESIZES, &frm_size_enum) == 0);
-
-  return std::make_pair(ImageSizeType::DISCRETE, std::move(sizes));
-}
-
-V4l2CameraDevice::ImageSizesDescription V4l2CameraDevice::listStepwiseImageSizes(
-  v4l2_frmsizeenum frm_size_enum)
-{
-  // Three entries: min size, max size and stepsize
-  auto sizes = ImageSizesVector(3);
-  sizes[0] = std::make_pair(frm_size_enum.stepwise.min_width, frm_size_enum.stepwise.min_height);
-  sizes[1] = std::make_pair(frm_size_enum.stepwise.max_width, frm_size_enum.stepwise.max_height);
-  sizes[2] = std::make_pair(frm_size_enum.stepwise.step_width, frm_size_enum.stepwise.step_height);
-
-  return std::make_pair(ImageSizeType::STEPWISE, std::move(sizes));
-}
-
-V4l2CameraDevice::ImageSizesDescription V4l2CameraDevice::listContinuousImageSizes(
-  v4l2_frmsizeenum frm_size_enum)
-{
-  // Two entries: min size and max size, stepsize is implicitly 1
-  auto sizes = ImageSizesVector(2);
-  sizes[0] = std::make_pair(frm_size_enum.stepwise.min_width, frm_size_enum.stepwise.min_height);
-  sizes[1] = std::make_pair(frm_size_enum.stepwise.max_width, frm_size_enum.stepwise.max_height);
-
-  return std::make_pair(ImageSizeType::CONTINUOUS, std::move(sizes));
-}
-
-void V4l2CameraDevice::listFrameIntervals()
-{
-  if (!timePerFrameSupported()) {
-    RCLCPP_WARN(
-      rclcpp::get_logger(
-        "v4l2_camera"), "Time per frame not supported, cannot list intervals");
-    return;
-  }
-
-  frame_intervals_.clear();
-  struct v4l2_frmivalenum frmIvalEnum;
-  // Supported intervals can be different per format and image size
-  for (auto const & f : image_formats_) {
-    auto sd = image_sizes_[f.pixelFormat];
-    switch (sd.first) {
-      case ImageSizeType::DISCRETE:
-
-        for (auto const & s : sd.second) {
-          frmIvalEnum.index = 0;
-          frmIvalEnum.pixel_format = f.pixelFormat;
-          frmIvalEnum.width = s.first;
-          frmIvalEnum.height = s.second;
-
-          if (-1 == ioctl(fd_, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum)) {
-            RCLCPP_ERROR_STREAM(
-              rclcpp::get_logger("v4l2_camera"),
-              "Failed listing frame interval " << strerror(errno) << " (" << errno << ")");
-            continue;
-          }
-
-          if (frmIvalEnum.type != V4L2_FRMIVAL_TYPE_DISCRETE) {
-            RCLCPP_WARN(
-              rclcpp::get_logger("v4l2_camera"),
-              "Listing of non-discrete frame intervals is not currently supported");
-            continue;
-          }
-
-          auto intervals = FrameIntervalsVector{};
-          do {
-            intervals.emplace_back(
-              std::make_pair(
-                frmIvalEnum.discrete.numerator,
-                frmIvalEnum.discrete.denominator));
-            frmIvalEnum.index++;
-          } while (ioctl(fd_, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0);
-
-          frame_intervals_[std::make_tuple(
-              f.pixelFormat, s.first,
-              s.second)] = std::move(intervals);
-        }
-        break;
-
-      default:
-        RCLCPP_WARN(
-          rclcpp::get_logger("v4l2_camera"),
-          "Listing of frame intervals for non-discrete image sizes is not currently supported");
-    }
-  }
-}
-
-void V4l2CameraDevice::listControls()
-{
-  controls_.clear();
-
-  auto queryctrl = v4l2_query_ext_ctrl{};
-  queryctrl.id = V4L2_CID_USER_CLASS | V4L2_CTRL_FLAG_NEXT_CTRL;
-
-  while (ioctl(fd_, VIDIOC_QUERY_EXT_CTRL, &queryctrl) == 0) {
-    // Ignore disabled controls
-    if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-      continue;
-    }
-
-    auto menuItems = std::map<int, std::string>{};
-    if (queryctrl.type == (unsigned)ControlType::MENU) {
-      auto querymenu = v4l2_querymenu{};
-      querymenu.id = queryctrl.id;
-
-      // Query all enum values
-      for (auto i = queryctrl.minimum; i <= queryctrl.maximum; i++) {
-        querymenu.index = i;
-        if (ioctl(fd_, VIDIOC_QUERYMENU, &querymenu) == 0) {
-          menuItems[i] = (const char *)querymenu.name;
-        }
-      }
-    }
-
-    auto control = Control{};
-    control.id = queryctrl.id;
-    control.name = std::string{reinterpret_cast<char *>(queryctrl.name)};
-    control.type = static_cast<ControlType>(queryctrl.type);
-    control.minimum = queryctrl.minimum;
-    control.maximum = queryctrl.maximum;
-    control.defaultValue = queryctrl.default_value;
-    control.menuItems = std::move(menuItems);
-
-    controls_.push_back(control);
-
-    // Get ready to query next item
-    queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
   }
 }
 
