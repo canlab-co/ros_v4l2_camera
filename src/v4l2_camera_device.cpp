@@ -206,7 +206,21 @@ Image::UniquePtr V4l2CameraDevice::capture()
     return nullptr;
   }
   
+  // Check TimeStamp When DQBUF Success
   buf_stamp = rclcpp::Clock{RCL_SYSTEM_TIME}.now();
+  
+  // Create image object
+  auto img = std::make_unique<Image>();
+  
+  // Fill in remaining image information
+  img->header.stamp = buf_stamp;
+  img->width = cur_data_format_.width;
+  img->height = cur_data_format_.height;
+  img->step = cur_data_format_.bytesPerLine;
+  
+  // Copy over buffer data
+  auto const & buffer = buffers_[buf.index];
+  img->data.assign(buffer.start, buffer.start + cur_data_format_.imageByteSize);
   
   // Requeue buffer to be reused for new captures
   if (-1 == ioctl(fd_, VIDIOC_QBUF, &buf)) {
@@ -216,13 +230,6 @@ Image::UniquePtr V4l2CameraDevice::capture()
       std::to_string(errno).c_str());
     return nullptr;
   }
-
-  // Create image object
-  auto img = std::make_unique<Image>();
-  img->header.stamp = buf_stamp;
-  img->width = cur_data_format_.width;
-  img->height = cur_data_format_.height;
-  img->step = cur_data_format_.bytesPerLine;
   
   auto const it = pixel_format_map_.find(cur_data_format_.pixelFormat);
   if (it != pixel_format_map_.end()) {
@@ -234,11 +241,6 @@ Image::UniquePtr V4l2CameraDevice::capture()
       FourCC::toString(cur_data_format_.pixelFormat).c_str(),
       cur_data_format_.pixelFormat);
   }
-
-  // Copy over buffer data
-  auto const & buffer = buffers_[buf.index];
-  
-  img->data.assign(buffer.start, buffer.start + cur_data_format_.imageByteSize);
         
   return img;
 }
