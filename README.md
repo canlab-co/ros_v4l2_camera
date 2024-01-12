@@ -6,6 +6,7 @@ A ROS 2 camera driver using Video4Linux2 For Canlab (V4L2).
 
 Requirements:
   * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/RDC/pages/463274142/CLEB-G-01A+User+guide)
+  * CANLAB CLV-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/RDC/pages/464913242/CLV-G-Series+User+guide)
   * [ROS 2 Foxy](https://docs.ros.org/en/foxy/index.html)
 
 ### Download Pacakage
@@ -13,12 +14,13 @@ If you need to modify the code or ensure you have the latest update you will nee
 
     $ git clone --branch foxy https://github.com/canlab-co/ros_v4l2_camera.git
     $ colcon build
+    $ source install/setup.bash
 
 ### Usage
 Publish camera images, using the default parameters:
 
-        ros2 launch v4l2_camera v4l2_camera_launch.py
-
+        CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
+        CLV-G-01A : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
 Preview the image (open another terminal):
 
         ros2 run rqt_image_view rqt_image_view
