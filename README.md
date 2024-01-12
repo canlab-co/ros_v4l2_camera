@@ -5,7 +5,7 @@ A ROS 2 camera driver using Video4Linux2 For Canlab (V4L2).
 ### System Requirements
 
 Requirements:
-  * CANLAB CLPE-G-01A
+  * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/RDC/pages/463274142/CLEB-G-01A+User+guide)
   * [ROS 2 Foxy](https://docs.ros.org/en/foxy/index.html)
 
 ### Download Pacakage
@@ -70,7 +70,7 @@ publishes images as `sensor_msgs/Image` messages.
 * `output_encoding` - `string`, default: `"yuv422"`
 
     The encoding to use for the output image.  
-    Currently supported: `"rgb8"`, `"yuv422"`.
+    Currently supported: `"yuv422"`.
 
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
