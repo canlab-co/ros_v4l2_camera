@@ -13,14 +13,19 @@ Requirements:
 If you need to modify the code or ensure you have the latest update you will need to clone this repo then build the package.
 
     $ git clone --branch foxy https://github.com/canlab-co/ros_v4l2_camera.git
+    $ cd ~/ros_v4l2_camera
     $ colcon build
     $ source install/setup.bash
 
 ### Usage
 Publish camera images, using the default parameters:
 
+        # launch the usb_cam executable
         CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
         CLV-G-01A : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
+        
+        # run the executable with default settings:        
+        1CH : ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0)
 Preview the image (open another terminal):
 
         ros2 run rqt_image_view rqt_image_view
@@ -29,8 +34,8 @@ Preview the image (open another terminal):
 For better image transport performance over DDS, we recommend using [FastDDS](https://github.com/eProsima/Fast-DDS) with Shared Memory Transport enabled.
 First copy the the `fastdds.xml` config file to a suitable directory, eg. `$HOME/fastdds.xml`
 ```bash
-cd ~/ros_v4l2_camera/src
-cp $HOME/fastdds.xml ~/
+cd ~/ros_v4l2_camera
+cp fastdds.xml ~/
 ```
 
 Next add these two lines to your `~/.bashrc`
