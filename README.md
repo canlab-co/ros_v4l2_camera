@@ -77,8 +77,9 @@ publishes images as `sensor_msgs/Image` messages.
 * `output_encoding` - `string`, default: `"yuv422"`
 
     The encoding to use for the output image.  
-    Currently supported: `"rgb8", "rgba8", "bgr8", "bgra8", "mono16", "yuv422"`.
-
+    Currently supported: `"rgb8", "rgba8", "bgr8", "bgra8", "mono16", "yuv422"`.  
+    **Defaults to yuv422. Note that encodings other than yuv422 incurs conversion overhead.**
+  
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
     Width and height of the image.
