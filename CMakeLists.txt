@@ -22,6 +22,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(camera_info_manager REQUIRED)
+find_package(cv_bridge REQUIRED)
 
 add_library(v4l2_camera
   src/v4l2_camera.cpp
@@ -36,6 +37,7 @@ ament_target_dependencies(v4l2_camera
   "rclcpp"
   "rclcpp_components"
   "image_transport"
+  "cv_bridge"
   "camera_info_manager")
 
 target_compile_options(v4l2_camera PRIVATE -Werror)
