@@ -24,6 +24,7 @@ Publish camera images, using the default parameters:
         # launch the usb_cam executable
         CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
         CLV-G-01A : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
+        CLMU-G-01A : ros2 launch v4l2_camera v4l2_camera_clmu_launch.py
         
         # run the executable with default settings:        
         1CH : ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0)
