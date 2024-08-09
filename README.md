@@ -6,24 +6,38 @@ A ROS 2 camera driver using Video4Linux2 For Canlab (V4L2).
 
 Requirements:
   * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/683507863/CLEB-G-01A+User+guide)
-  * CANLAB CLV-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/459735068/CLV-200N+CLV-G-NVP2650D+User+guide)
+  * CANLAB CLV-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/459735068/CLV-200N+CLV-G-NVP2650D+User+guide)
   * CANLAB CLMU-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/753270785/CLMU-G-01A+User+guide)
   * [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
 ### Download Pacakage
 If you need to modify the code or ensure you have the latest update you will need to clone this repo then build the package.
 
+    $ mkdir -p ~/ros_v4l2_camera/src
+    $ cd ~/ros_v4l2_camera/src
     $ git clone --branch humble https://github.com/canlab-co/ros_v4l2_camera.git
     $ cd ~/ros_v4l2_camera
     $ colcon build
     $ source install/setup.bash
+
+### Modify Resolution
+If you want to change resolution, you need to modify the launch file.
+
+    $ cd ~/ros_v4l2_camera/src/ros_v4l2_camera/launch
+    $ gedit v4l2_camera_cleb_launch.py   /* CLEB-G-01A */
+    $ gedit v4l2_camera_clv_launch.py    /* CLV-G-Series */
+    $ gedit v4l2_camera_clmu_launch.py   /* CLMU-G-01A */
+
+    image_size = LaunchConfiguration('image_size', default="[your_width, your_height]")
+
+Then build again.
 
 ### Usage
 Publish camera images, using the default parameters:
 
         # launch the v4l2_camera executable
         CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
-        CLV-G-01A : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
+        CLV-G-Series : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
         CLMU-G-01A : ros2 launch v4l2_camera v4l2_camera_clmu_launch.py
         
         # run the executable with default settings:        
