@@ -8,12 +8,12 @@ Requirements:
   * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/683507863/CLEB-G-01A+User+guide)
   * CANLAB CLV-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/459735068/CLV-200N+CLV-G-NVP2650D+User+guide)
   * CANLAB CLMU-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/753270785/CLMU-G-01A+User+guide)
-  * [ROS 2 Foxy](https://docs.ros.org/en/foxy/index.html)
+  * [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
 ### Download Pacakage
 If you need to modify the code or ensure you have the latest update you will need to clone this repo then build the package.
 
-    $ git clone --branch foxy https://github.com/canlab-co/ros_v4l2_camera.git
+    $ git clone --branch humble https://github.com/canlab-co/ros_v4l2_camera.git
     $ cd ~/ros_v4l2_camera
     $ colcon build
     $ source install/setup.bash
