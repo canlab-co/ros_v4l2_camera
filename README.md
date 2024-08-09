@@ -21,7 +21,7 @@ If you need to modify the code or ensure you have the latest update you will nee
 ### Usage
 Publish camera images, using the default parameters:
 
-        # launch the usb_cam executable
+        # launch the v4l2_camera executable
         CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
         CLV-G-01A : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
         CLMU-G-01A : ros2 launch v4l2_camera v4l2_camera_clmu_launch.py
