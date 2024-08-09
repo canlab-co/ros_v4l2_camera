@@ -218,7 +218,7 @@ bool V4L2Camera::requestImageSize(std::vector<int64_t> const & size)
   if (size.size() != 2) {
     RCLCPP_WARN(
       get_logger(),
-      "Invalid image size; expected dimensions: 2, actual: %ld",
+      "Invalid image size; expected dimensions: 2, actual: %d",
       size.size());
     return false;
   }
