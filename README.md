@@ -20,18 +20,6 @@ If you need to modify the code or ensure you have the latest update you will nee
     $ colcon build
     $ source install/setup.bash
 
-### Modify Resolution
-If you want to change resolution, you need to modify the launch file.
-
-    $ cd ~/ros_v4l2_camera/src/ros_v4l2_camera/launch
-    $ gedit v4l2_camera_cleb_launch.py   /* CLEB-G-01A */
-    $ gedit v4l2_camera_clv_launch.py    /* CLV-G-Series */
-    $ gedit v4l2_camera_clmu_launch.py   /* CLMU-G-01A */
-
-    image_size = LaunchConfiguration('image_size', default="[your_width, your_height]")
-
-Then build again.
-
 ### Usage
 Publish camera images, using the default parameters:
 
