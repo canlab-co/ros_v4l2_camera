@@ -5,9 +5,9 @@ A ROS 2 camera driver using Video4Linux2 For Canlab (V4L2).
 ### System Requirements
 
 Requirements:
-  * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/683507863/CLEB-G-01A+User+guide)
-  * CANLAB CLV-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/459735068/CLV-200N+CLV-G-NVP2650D+User+guide)
-  * CANLAB CLMU-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/753270785/CLMU-G-01A+User+guide)
+  * CANLAB CLEB-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/485065636/CLEB-G-Series)
+  * CANLAB CLV-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/453214214/CLV-G-Series)
+  * CANLAB CLMU-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/484966555/CLMU-G-Series)
   * [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
 ### Download Pacakage
@@ -18,15 +18,26 @@ If you need to modify the code or ensure you have the latest update you will nee
     $ git clone --branch humble https://github.com/canlab-co/ros_v4l2_camera.git
     $ cd ~/ros_v4l2_camera
     $ colcon build
-    $ source install/setup.bash
+    $ source ~/ros_v4l2_camera/install/setup.bash
 
 ### Usage
 Publish camera images, using the default parameters:
 
         # launch the v4l2_camera executable
-        CLEB-G-01A : ros2 launch v4l2_camera v4l2_camera_cleb_launch.py
         CLV-G-Series : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
-        CLMU-G-01A : ros2 launch v4l2_camera v4l2_camera_clmu_launch.py
+        
+        /* CLEB-G-Series */
+        # CLEB-G-01A
+        CLCC-G-01X: ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[1920, 1080]"
+        CLCC-G-02X: ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[2048, 1280]"
+        
+        /* CLMU-G-Series */
+        # CLMU-G-01A
+        CLCC-G-01X: ros2 launch v4l2_camera v4l2_camera_clmu-g-01a_launch.py image_size:="[1920, 1080]"
+        CLCC-G-02X: ros2 launch v4l2_camera v4l2_camera_clmu-g-02a_launch.py image_size:="[2048, 1280]"
+        # CLMU-G-02A
+        CLCC-G-01X: ros2 launch v4l2_camera v4l2_camera_clmu-g-01a_launch.py image_size:="[1920, 1080]"
+        CLCC-G-02X: ros2 launch v4l2_camera v4l2_camera_clmu-g-02a_launch.py image_size:="[2048, 1280]"
         
         # run the executable with default settings:        
         1CH : ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0)
@@ -87,6 +98,7 @@ publishes images as `sensor_msgs/Image` messages.
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
     Width and height of the image.
+    Currently supported: `[1920, 1080], [2048, 1280]`
 
 * Camera Control Parameters
 
