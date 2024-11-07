@@ -40,7 +40,8 @@ Publish camera images, using the default parameters:
         
         # run the executable with default settings:        
         1CH : ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0)
-If the number of camera channels you want to use is 3, you can enter cam:=3. default is 6.
+Note: If the number of camera channels you want to use is 3, you can enter cam:=3. default is 6.  
+
 Preview the image (open another terminal):
 
         ros2 run rqt_image_view rqt_image_view
