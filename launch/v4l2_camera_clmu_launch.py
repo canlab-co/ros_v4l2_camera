@@ -38,38 +38,31 @@ import sys
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import PythonExpression
 
 def generate_launch_description():
     image_size = LaunchConfiguration('image_size', default="[1920, 1080]")
     pixel_format = LaunchConfiguration('pixel_format', default='UYVY')
+    cam_count = LaunchConfiguration('cam', default='6')
+
     ld = LaunchDescription()
-
-
-    v4l2_camera_node_1=Node(
-        package='v4l2_camera', executable='v4l2_camera_node', output='screen',
-        name='v4l2_camera_node_1',
-        #namespace='v4l2_camera',
-        parameters=[
-            {'video_device': '/dev/video0'},
-            {'camera_frame_id': 'video0'},
-            {'image_size': image_size},
-            {'pixel_format': pixel_format },
-            {'output_encoding': 'yuv422'},
-        ])
-    v4l2_camera_node_2 = Node(
-        package='v4l2_camera', executable='v4l2_camera_node', output='screen',
-        name='v4l2_camera_node_2',
-        #namespace='v4l2_camera',
-        parameters=[
-            {'video_device': '/dev/video1'},
-            {'camera_frame_id': 'video1'},
-            {'image_size': image_size},
-            {'pixel_format': pixel_format },
-            {'output_encoding': 'yuv422'},
-        ])
-        
-    ld.add_action(v4l2_camera_node_1)
-    ld.add_action(v4l2_camera_node_2)
     
+    for i in range(6):
+        v4l2_camera_node = Node(
+            package='v4l2_camera', executable='v4l2_camera_node', output='screen',
+            name='v4l2_camera_node_{}'.format(i+1),
+            parameters=[
+                {'video_device': '/dev/video{}'.format(i)},
+                {'camera_frame_id': 'video{}'.format(i)},
+                {'image_size': image_size},
+                {'pixel_format': pixel_format},
+                {'output_encoding': 'yuv422'},
+            ],
+            condition=IfCondition(PythonExpression([cam_count, " >= {}".format(i+1)]))
+        )
+        ld.add_action(v4l2_camera_node)
+    ld.add_action(DeclareLaunchArgument('cam', default_value='6'))
+
     return ld
