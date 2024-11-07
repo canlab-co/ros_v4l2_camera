@@ -97,7 +97,7 @@ publishes images as `sensor_msgs/Image` messages.
   
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
-    Width and height of the image.
+    Width and height of the image.  
     Currently supported: `[1920, 1080], [2048, 1280]`
 
 * Camera Control Parameters
