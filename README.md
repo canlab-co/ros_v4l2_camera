@@ -21,7 +21,7 @@ If you need to modify the code or ensure you have the latest update you will nee
     $ source ~/ros_v4l2_camera/install/setup.bash
 
 ### Usage
-Publish camera images, using the default parameters:
+Publish camera images, using the parameters:
 
         # launch the v4l2_camera executable
         CLV-G-Series : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
@@ -34,13 +34,18 @@ Publish camera images, using the default parameters:
         
         /* CLMU-G-Series */
         # CLCC-G-01X
-        ros2 launch v4l2_camera v4l2_camera_clmu-g-01a_launch.py image_size:="[1920, 1080]" cam:={n}
+        ros2 launch v4l2_camera v4l2_camera_clmu_launch.py image_size:="[1920, 1080]" cam:={n}
         # CLCC-G-02X
-        ros2 launch v4l2_camera v4l2_camera_clmu-g-02a_launch.py image_size:="[2048, 1280]" cam:={n}
-        
+        ros2 launch v4l2_camera v4l2_camera_clmu_launch.py image_size:="[2048, 1280]" cam:={n}
+
+Note: If the number of camera channels you want to use is 3, you can enter cam:=3. default is 6.
+
+        1CH camera (1 node)
         # run the executable with default settings:        
-        1CH : ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0)
-Note: If the number of camera channels you want to use is 3, you can enter cam:=3. default is 6.  
+        ros2 run v4l2_camera v4l2_camera_node (default : /dev/video0, [1920, 1080])
+
+        # run the executable with customized settings:
+        ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:="/dev/video{x}" -p image_size:="[w, h]"
 
 Preview the image (open another terminal):
 
@@ -99,12 +104,12 @@ publishes images as `sensor_msgs/Image` messages.
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
     Width and height of the image.  
-    Currently supported: `[1920, 1080], [2048, 1280]`
+    Currently supported: `[1920, 1080]`, CLMU, CLEB - `[2048, 1280]`
 
-* `cam` - `integer`
+* `cam` - `integer`, default: `6`
 
     The number of camera channels.  
-    Currently supported: CLMU(default: 6)
+    Currently supported: CLMU
 
 * Camera Control Parameters
 
