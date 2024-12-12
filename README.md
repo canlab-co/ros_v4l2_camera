@@ -5,18 +5,20 @@ A ROS 2 camera driver using Video4Linux2 For Canlab (V4L2).
 ### System Requirements
 
 Requirements:
-  * CANLAB CLEB-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/683507863/CLEB-G-01A+User+guide)
-  * CANLAB CLV-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/459735068/CLV-200N+CLV-G-NVP2650D+User+guide)
-  * CANLAB CLMU-G-01A [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/753270785/CLMU-G-01A+User+guide)
-  * [ROS 2 Foxy](https://docs.ros.org/en/foxy/index.html)
+  * CANLAB CLEB-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/485065636/CLEB-G-Series)
+  * CANLAB CLV-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/453214214/CLV-G-Series)
+  * CANLAB CLMU-G-Series [(GUIDE)](https://can-lab.atlassian.net/wiki/spaces/CANLABGUID/pages/484966555/CLMU-G-Series)
+  * [ROS 2 Foxy](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
 
 ### Download Pacakage
 If you need to modify the code or ensure you have the latest update you will need to clone this repo then build the package.
 
+    $ mkdir -p ~/ros_v4l2_camera/src
+    $ cd ~/ros_v4l2_camera/src
     $ git clone --branch foxy https://github.com/canlab-co/ros_v4l2_camera.git
     $ cd ~/ros_v4l2_camera
     $ colcon build
-    $ source install/setup.bash
+    $ source ~/ros_v4l2_camera/install/setup.bash
 
 ### Usage
 Publish camera images, using the default parameters:
