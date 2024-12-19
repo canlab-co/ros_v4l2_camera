@@ -25,20 +25,24 @@ Publish camera images, using the parameters:
 
         # launch the v4l2_camera executable
         CLV-G-Series : ros2 launch v4l2_camera v4l2_camera_clv_launch.py
-        
-        /* CLEB-G-Series */
+
+        /* CLEB-G-01A */
         # CLCC-G-01X
-        ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[1920, 1080]"
+        ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[1920, 1080]" cam:={n}
         # CLCC-G-02X
-        ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[2048, 1280]"
-        
+        ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[2048, 1280]" cam:={n}
+
+        /* CLEB-G-02A */
+        # CLSC-G-01X
+        ros2 launch v4l2_camera v4l2_camera_cleb_launch.py image_size:="[1920, 1536]" cam:={n}
+
         /* CLMU-G-Series */
         # CLCC-G-01X
         ros2 launch v4l2_camera v4l2_camera_clmu_launch.py image_size:="[1920, 1080]" cam:={n}
         # CLCC-G-02X
         ros2 launch v4l2_camera v4l2_camera_clmu_launch.py image_size:="[2048, 1280]" cam:={n}
 
-Note: If the number of camera channels you want to use is 3, you can enter cam:=3. default is 6.
+>Note: If the number of camera channels you want to use is 3, you can enter cam:=3.
 
         1CH camera (1 node)
         # run the executable with default settings:        
@@ -104,12 +108,17 @@ publishes images as `sensor_msgs/Image` messages.
 * `image_size` - `integer_array`, default: `[1920, 1080]`
 
     Width and height of the image.  
-    Currently supported: `[1920, 1080]`, CLMU, CLEB - `[2048, 1280]`
+    Currently supported:  
+    CLMU-G-Series - `[1920, 1080]` `[2048, 1280]`  
+    CLEB-G-01A - `[1920, 1080]` `[2048, 1280]`  
+    CLEB-G-02A - `[1920, 1536]`
 
-* `cam` - `integer`, default: `6`
+* `cam` - `integer`
 
     The number of camera channels.  
-    Currently supported: CLMU
+    Currently supported:  
+    CLMU-G-Series(default: `6`)  
+    CLEB-G-Series(default: `6`)
 
 * Camera Control Parameters
 
